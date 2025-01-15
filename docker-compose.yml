@@ -3,7 +3,7 @@ version: "3.8"
 services:
   api:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
       - "8001:8001"
     volumes:
@@ -12,6 +12,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/whatsapp_bot
+      - PYTHONPATH=/app
     env_file:
       - .env
     depends_on:
@@ -28,6 +29,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/whatsapp_bot
+      - PYTHONPATH=/app
     env_file:
       - .env
     depends_on:
