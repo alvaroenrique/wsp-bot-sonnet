@@ -69,3 +69,6 @@ def start_worker():
     with Connection(redis_conn):
         worker = Worker([message_queue])
         worker.work()
+
+if __name__ == '__main__':
+    start_worker()
