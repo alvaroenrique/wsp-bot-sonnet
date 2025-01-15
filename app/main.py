@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from . import models, schemas
 from .database import engine, get_db
 from .queue_worker import message_queue
 import json
 from datetime import datetime
 import os
+from sqlalchemy import select
 
 app = FastAPI(title="WhatsApp Chatbot API")
 
@@ -96,6 +98,7 @@ async def get_messages(skip: int = 0, limit: int = 100, db: AsyncSession = Depen
     """
     Get list of messages
     """
-    result = await db.execute(models.Message.__table__.select().offset(skip).limit(limit))
-    messages = result.fetchall()
-    return messages
+    query = select(models.Message).offset(skip).limit(limit)
+    result = await db.execute(query)
+    messages = result.scalars().all()
+    return [schemas.Message.model_validate(message) for message in messages]
