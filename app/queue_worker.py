@@ -19,24 +19,33 @@ def process_message(message_data):
     Process message in background
     """
     try:
-        # Here you would implement your message processing logic
-        # For example, calling WhatsApp API to send response
         whatsapp_api_url = os.getenv('WHATSAPP_API_URL')
         api_token = os.getenv('WHATSAPP_API_TOKEN')
+        phone_id = os.getenv('WHATSAPP_PHONE_ID')
+        
+        if not all([whatsapp_api_url, api_token, phone_id]):
+            raise ValueError("Missing required WhatsApp configuration")
         
         headers = {
             'Authorization': f'Bearer {api_token}',
             'Content-Type': 'application/json'
         }
         
+        # Construct the complete WhatsApp API URL with phone ID
+        complete_api_url = f"{whatsapp_api_url}/{phone_id}/messages"
+        
         response_data = {
             "messaging_product": "whatsapp",
+            "recipient_type": "individual",
             "to": message_data['from_number'],
             "type": "text",
-            "text": {"body": message_data['response_text']}
+            "text": {
+                "preview_url": False,
+                "body": message_data.get('response_text', os.getenv('DEFAULT_RESPONSE_MESSAGE', 'Gracias por tu mensaje'))
+            }
         }
         
-        response = requests.post(whatsapp_api_url, json=response_data, headers=headers)
+        response = requests.post(complete_api_url, json=response_data, headers=headers)
         response.raise_for_status()
         
         return {
